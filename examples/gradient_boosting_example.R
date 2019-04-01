@@ -23,6 +23,10 @@ eq <- sim$eq
 # get the formula
 model_df <- sim$data
 
+# source the function
+source("algorithms/grad_boost.R")
+
+# fit
 mod <- grad_boost(formula = eq, data = model_df,
                   nu = 0.1, stop = 100,
                   grad.fun = gradient,

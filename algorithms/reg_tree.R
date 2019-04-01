@@ -72,7 +72,7 @@ reg_tree <- function(formula, data, minsize) {
       }
       
       # estimate splitting criteria
-      splitting <- apply(X,  MARGIN = 2, FUN = sse_var, y = y)
+      splitting <- apply(X,  MARGIN = 2, FUN = sse_var, y = this_data[, all.vars(formula)[1]])
       
       # get the min SSE
       tmp_splitter <- which.min(splitting[1,])
