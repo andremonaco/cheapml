@@ -1,4 +1,6 @@
-# cheapml
+cheapml <img src="cheapml_hexbin.png" alt="drawing" width="150px" align="right"/> 
+===================================
+
 
 This repo contains machine learning algorithms coded from scratch. These implementations are not designed for high-performance, the focus lies on coding a generic implementation only with necessary code. 
 
