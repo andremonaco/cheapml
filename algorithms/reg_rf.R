@@ -35,7 +35,7 @@ reg_rf <- function(formula, n_trees, feature_frac, data) {
     # bag the data
     # - randomly sample the data with replacement (duplicate are possible)
     train <-
-      data[sample(1:nrow(data), size = nrow(data), replace = TRUE)]
+      data[sample(1:nrow(data), size = nrow(data), replace = TRUE),]
     
     # randomly sample features
     # - only fit the regression tree with feature_frac * 100 % of the features
