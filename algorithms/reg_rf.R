@@ -45,7 +45,7 @@ reg_rf <- function(formula, n_trees, feature_frac, data) {
     
     # create new formula
     formula_new <-
-      as.formula(paste0(target, " ~ ", paste0(features_sample,
+      as.formula(paste0(target, " ~ -1 + ", paste0(features_sample,
                                               collapse =  " + ")))
     
     # fit the regression tree
@@ -73,8 +73,8 @@ reg_rf <- function(formula, n_trees, feature_frac, data) {
   fits <- do.call("cbind", trees[, 1])
   
   # calculate the final fit as a mean of all regression trees
-  rf_fit <- apply(fits, MARGIN = 1, mean)
-  
+  rf_fit <- apply(fits, MARGIN = 1, mean, na.rm = TRUE)
+
   # extract the feature importance
   imp_full <- do.call("rbind", trees[, 2])
   
