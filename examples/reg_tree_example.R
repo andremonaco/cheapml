@@ -1,30 +1,31 @@
 # Regression Tree Runthrough ----------------------------------------------
 
 # load data simulation tool
-# library(devtools)
 # devtools::install_github('andrebleier/Xy')
 library(Xy)
 
+# source function
+source("algorithms/reg_tree.R")
+
 # simulate data
-sim <- Xy(n = 2500, # 2500 observations
-          numvars = c(2, 0), # 2 linear variables / 0 nonlinear
-          noisevars = 0, # no noise variables
-          catvars = 0, # omit dummy variables
-          stn = 5,
-          intercept = TRUE
-)
+sim <- Xy(task = "regression") %>%
+  # add two linear features
+  add_linear(p = 2) %>%
+  # add an intercept
+  add_intercept() %>%
+  # add noise 
+  add_noise() %>%
+  # simulate the recipe from above
+  simulate(n = 1000, r_squared = 0.9)
 
 # simulation overview
 sim
 
 # get the formula
-eq <- sim$eq
+model_df <- sim %>% pull_xy()
 
 # get the formula
-model_df <- sim$data
-
-# source function
-source("algorithms/reg_tree.R")
+eq <- sim %>% formula()
 
 # fit
 mod <- reg_tree(formula = eq, data = model_df, minsize = 400)

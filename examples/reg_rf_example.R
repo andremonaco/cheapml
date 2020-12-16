@@ -1,39 +1,40 @@
 # Regression Random Forest Runthrough ----------------------------------------------
 
 # load data simulation tool
-# library(devtools)
 # devtools::install_github('andrebleier/Xy')
 library(Xy)
+library(dplyr)
 library(ggplot2)
 source("algorithms/reg_rf.R")
 source("algorithms/reg_tree_imp.R")
 
 # simulate data
-sim <- Xy(n = 2500, # 2500 observations
-          numvars = c(5, 0), # 5 linear variables / 0 nonlinear
-          noisevars = 5, # 5 noise variables
-          catvars = 0, # omit dummy variables
-          weights = c(-5, 20), # range of the beta weights
-          stn = 5, # signal to noise ratio
-          intercept = FALSE # intercept in the model
-)
+sim <- Xy(task = "regression") %>%
+  # add a non-linear feature
+  add_linear(p = 5) %>%
+  # add uninformative features
+  add_uninformative(p = 5) %>%
+  # add noise to the process
+  add_noise() %>%
+  # simulate
+  simulate(n = 2500, r_squared = 0.95)
 
 # simulation overview
 sim
 
-# get the formula
-eq <- sim$eq
+# get the simulation data
+model_df <- sim %>% pull_xy()
 
 # get the formula
-model_df <- sim$data
+eq <- sim %>% formula()
 
-# plot the true variable importance
-imp_true <- varimp(sim, plot = FALSE)
-
-# subset to importance mean
-imp_true <- imp_true[, c(1,2)]
-names(imp_true)[2] <- "IMPORTANCE" 
-imp_true$TYPE <- "Truth"
+# show feature importance
+imp_true <- sim %>% importance(plot=FALSE) %>% 
+  dplyr::select(effect, mean) %>%
+  dplyr::filter(effect != "e") %>%
+  dplyr::rename("IMPORTANCE" = "mean",
+                "FEATURES" = "effect") %>%
+  mutate(TYPE = 'Truth')
 
 # fit regression tree
 mod_rt <- reg_tree_imp(formula = eq, data = model_df, minsize = 250)
