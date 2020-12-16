@@ -24,6 +24,9 @@ reg_rf <- function(formula, n_trees, feature_frac, data) {
   # load plyr
   require(plyr)
   
+  # coerce to data frame
+  data <- as.data.frame(data)
+  
   # define function to sprout a single tree
   sprout_tree <- function(formula, feature_frac, data) {
     # extract features
@@ -45,16 +48,28 @@ reg_rf <- function(formula, n_trees, feature_frac, data) {
     
     # create new formula
     formula_new <-
-      as.formula(paste0(target, " ~ -1 + ", paste0(features_sample,
+      as.formula(paste0(target, " ~ ", paste0(features_sample,
                                               collapse =  " + ")))
     
     # fit the regression tree
     tree <- reg_tree_imp(formula = formula_new,
                          data = train,
-                         minsize = ceiling(nrow(train) * 0.1))
+                         minsize = ceiling(nrow(train) * 0.05))
+    
+    # use tree splitting rules on the original data
+    tree_info <- tree$tree
+    # calculate fitted values
+    leafs <- tree_info[tree_info$TERMINAL == "LEAF", ]
+    fitted <- vector(length=nrow(data))
+    for (i in seq_len(nrow(leafs))) {
+      # extract index
+      ind <- as.numeric(rownames(subset(data, eval(parse(text = leafs[i, "FILTER"])))))
+      # estimator is the mean y value of the leaf
+      fitted[ind] <- mean(data[ind, target])
+    }
     
     # save the fit and the importance
-    return(list(tree$fit, tree$importance))
+    return(list(fitted, tree$importance))
   }
   
   # apply the rf_tree function n_trees times with plyr::raply
